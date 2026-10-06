@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadLeak Detector — Revenue Recovery Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(244, 63, 94, 0.06) 0%, transparent 40%);
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .badge-icon {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(6, 182, 212, 0.2));
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    select, button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    select:hover, button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-recover {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      border: 1px solid #fb7185;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(244, 63, 94, 0.3);
+    }
+
+    .btn-recover:hover {
+      background: linear-gradient(135deg, #fb7185, #f43f5e);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-subtext {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .text-rose { color: var(--accent-rose); }
+    .text-cyan { color: var(--accent-cyan); }
+    .text-emerald { color: var(--accent-emerald); }
+    .text-amber { color: var(--accent-amber); }
+
+    /* Funnel Section */
+    .funnel-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .funnel-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 800px) {
+      .funnel-steps { grid-template-columns: 1fr; }
+    }
+
+    .funnel-step {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .funnel-step.leaked {
+      border-color: rgba(244, 63, 94, 0.4);
+      background: rgba(244, 63, 94, 0.05);
+    }
+
+    .step-name {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .step-count {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 0.25rem;
+    }
+
+    .step-pct {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .leak-banner {
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .leak-text {
+      font-size: 0.9rem;
+      color: #fecdd3;
+    }
+
+    /* Table Section */
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .table-toolbar {
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .table-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.85rem 1.25rem;
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    .channel-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .ch-whatsapp { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .ch-web { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .ch-phone { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .ch-email { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+    .sla-pill {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .sla-healthy { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .sla-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .sla-degraded { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid #f97316; }
+    .sla-breached { background: rgba(244, 63, 94, 0.2); color: #f43f5e; border: 1px solid #f43f5e; animation: pulse 2s infinite; }
+    .sla-recovered { background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid #06b6d4; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e293b;
+      border: 1px solid var(--accent-emerald);
+      color: var(--text-main);
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="badge-icon">🚨</div>
+        <div>
+          <h1>LeadLeak Detector</h1>
+          <div class="subtitle">Commercial Inbound Defense & Pipeline Recovery System</div>
+        </div>
+      </div>
+      <div class="controls-bar">
+        <select id="presetSelect" onchange="loadPreset(this.value)">
+          <option value="b2b">Dataset: 100 Inbound B2B Leads</option>
+          <option value="dental">Dataset: 50 Dental Patient Inquiries</option>
+          <option value="roofing">Dataset: 37 High-End Roofing Quotes</option>
+        </select>
+        <button class="btn-recover" id="recoverBtn" onclick="triggerRescue()">
+          <span>⚡</span> Recover Leaked Leads
+        </button>
+      </div>
+    </header>
+
+    <!-- Top KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Total Inbound Leads</div>
+        <div class="kpi-value text-cyan" id="kpiTotal">100</div>
+        <div class="kpi-subtext">Multi-channel captured</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Leaked / Unattended</div>
+        <div class="kpi-value text-rose" id="kpiLeaked">28</div>
+        <div class="kpi-subtext" id="kpiLeakPct">28% lost before first contact</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Median First Response Time</div>
+        <div class="kpi-value text-amber" id="kpiMedian">3h 42m</div>
+        <div class="kpi-subtext">Target SLA: &lt; 5 minutes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Pipeline at Risk</div>
+        <div class="kpi-value text-rose" id="kpiRisk">$42,000</div>
+        <div class="kpi-subtext" id="kpiEstLoss">Est. Real Loss: $10,500</div>
+      </div>
+    </div>
+
+    <!-- Visual Funnel Breakdown -->
+    <div class="funnel-container">
+      <div class="section-header">
+        <div class="section-title">
+          <span>📊</span> Inbound Conversion Funnel Analysis
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">
+          Industry Average: 78% of buyers purchase from first company to respond
+        </div>
+      </div>
+
+      <div class="funnel-steps">
+        <div class="funnel-step">
+          <div class="step-name">1. Inbound Leads</div>
+          <div class="step-count text-cyan" id="step1">100</div>
+          <div class="step-pct">100% Total</div>
+        </div>
+        <div class="funnel-step leaked">
+          <div class="step-name">2. Contacted (SLA)</div>
+          <div class="step-count text-rose" id="step2">72</div>
+          <div class="step-pct" style="color: #fb7185;">-28 Leaked (28%)</div>
+        </div>
+        <div class="funnel-step">
+          <div class="step-name">3. Qualified</div>
+          <div class="step-count text-amber" id="step3">41</div>
+          <div class="step-pct">57% Conversion</div>
+        </div>
+        <div class="funnel-step">
+          <div class="step-name">4. Proposals Sent</div>
+          <div class="step-count text-cyan" id="step4">19</div>
+          <div class="step-pct">46% Conversion</div>
+        </div>
+        <div class="funnel-step">
+          <div class="step-name">5. Closed Won</div>
+          <div class="step-count text-emerald" id="step5">7</div>
+          <div class="step-pct" style="color: #34d399;">$10,500 Won</div>
+        </div>
+      </div>
+
+      <div class="leak-banner" id="leakBanner">
+        <div class="leak-text">
+          <strong>⚠️ Critical Friction Detected:</strong> 28 prospective buyers were left waiting past the 2-hour SLA. They contacted competitors while your inbox sat unmonitored.
+        </div>
+        <button class="btn-recover" onclick="triggerRescue()">
+          <span>⚡</span> Dispatch Instant Recovery Sequences
+        </button>
+      </div>
+    </div>
+
+    <!-- Lead Inspection Table -->
+    <div class="table-container">
+      <div class="table-toolbar">
+        <div class="section-title" style="font-size: 0.95rem;">
+          <span>🎯</span> Live Lead Inspection Radar
+        </div>
+        <div class="table-tabs">
+          <button class="tab-btn active" onclick="setFilter('ALL')">All Leads</button>
+          <button class="tab-btn" onclick="setFilter('LEAKED')">🚨 Leaked Only</button>
+          <button class="tab-btn" onclick="setFilter('WHATSAPP')">WhatsApp</button>
+          <button class="tab-btn" onclick="setFilter('FORM')">Web Forms</button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Channel</th>
+            <th>Prospect</th>
+            <th>Est. Deal Value</th>
+            <th>Received</th>
+            <th>First Contact</th>
+            <th>Response SLA</th>
+            <th>Assigned / Action</th>
+          </tr>
+        </thead>
+        <tbody id="leadTableBody">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="toast">
+    <span style="font-size: 1.25rem;">✅</span>
+    <span id="toastMsg">Action executed successfully.</span>
+  </div>
+
+  <script>
+    // Presets
+    const PRESETS = {
+      b2b: {
+        total: 100,
+        leaked: 28,
+        median: '3h 42m',
+        risk: 42000,
+        dealSize: 1500,
+        steps: [100, 72, 41, 19, 7],
+        leads: [
+          { ch: 'whatsapp', name: 'Marcus Brody', deal: 5000, rec: '3h 15m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'WhatsApp inquiry unread' },
+          { ch: 'web', name: 'Sophia Chen', deal: 2500, rec: '4h 02m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Quote request waiting' },
+          { ch: 'phone', name: 'David Vance', deal: 7500, rec: '2h 45m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Missed call, no callback' },
+          { ch: 'web', name: 'Elena Fisher', deal: 1500, rec: '1h 10m ago', touch: '2m after', sla: 'HEALTHY', rep: 'Sarah M.', hook: 'Booked demo call' },
+          { ch: 'email', name: 'Liam Davies', deal: 3000, rec: '45m ago', touch: '12m after', sla: 'WARNING', rep: 'Alex K.', hook: 'Pricing sent' },
+          { ch: 'whatsapp', name: 'Amara Okafor', deal: 4200, rec: '5h 10m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Requested invoice details' },
+          { ch: 'web', name: 'Viktor Reznov', deal: 3200, rec: '10m ago', touch: '3m after', sla: 'HEALTHY', rep: 'Sarah M.', hook: 'Qualified' }
+        ]
+      },
+      dental: {
+        total: 50,
+        leaked: 14,
+        median: '2h 18m',
+        risk: 18200,
+        dealSize: 1300,
+        steps: [50, 36, 24, 18, 12],
+        leads: [
+          { ch: 'phone', name: 'Jessica Miller', deal: 2400, rec: '2h 20m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Dental implant inquiry' },
+          { ch: 'web', name: 'Robert Paul', deal: 1200, rec: '3h 15m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Teeth whitening form' },
+          { ch: 'whatsapp', name: 'Dr. Aaron Cole', deal: 3500, rec: '15m ago', touch: '4m after', sla: 'HEALTHY', rep: 'Front Desk', hook: 'Confirmed slot' }
+        ]
+      },
+      roofing: {
+        total: 37,
+        leaked: 9,
+        median: '4h 50m',
+        risk: 73000,
+        dealSize: 8100,
+        steps: [37, 28, 18, 11, 6],
+        leads: [
+          { ch: 'web', name: 'Austin Commercial LLC', deal: 24000, rec: '5h 30m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Hail damage inspection' },
+          { ch: 'phone', name: 'Miller Residence', deal: 9500, rec: '3h 40m ago', touch: 'Never', sla: 'BREACHED', rep: 'Unassigned', hook: 'Emergency roof leak' }
+        ]
+      }
+    };
+
+    let currentPreset = 'b2b';
+    let currentFilter = 'ALL';
+    let isRecovered = false;
+
+    function render() {
+      const data = PRESETS[currentPreset];
+      document.getElementById('kpiTotal').textContent = data.total;
+      document.getElementById('kpiLeaked').textContent = isRecovered ? '0' : data.leaked;
+      document.getElementById('kpiLeakPct').textContent = isRecovered 
+        ? '0% (100% recovered via SLA workflow)' 
+        : `${Math.round((data.leaked / data.total) * 100)}% lost before first contact`;
+      document.getElementById('kpiMedian').textContent = isRecovered ? '1m 40s (Auto-SLA)' : data.median;
+      document.getElementById('kpiRisk').textContent = isRecovered ? '$0' : `$${data.risk.toLocaleString()}`;
+      document.getElementById('kpiEstLoss').textContent = isRecovered 
+        ? `+$${Math.round(data.risk * 0.25).toLocaleString()} Pipeline Salvaged`
+        : `Est. Real Loss: $${Math.round(data.risk * 0.25).toLocaleString()}`;
+
+      // Steps
+      document.getElementById('step1').textContent = data.steps[0];
+      document.getElementById('step2').textContent = isRecovered ? data.steps[0] : data.steps[1];
+      document.getElementById('step3').textContent = data.steps[2];
+      document.getElementById('step4').textContent = data.steps[3];
+      document.getElementById('step5').textContent = data.steps[4];
+
+      if (isRecovered) {
+        document.getElementById('leakBanner').style.background = 'rgba(16, 185, 129, 0.15)';
+        document.getElementById('leakBanner').style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        document.getElementById('leakBanner').innerHTML = `
+          <div class="leak-text" style="color: #a7f3d0;">
+            <strong>🎉 Recovery Complete:</strong> Automated multi-channel SMS & WhatsApp sequences dispatched to all ${data.leaked} leaked prospects. Response times reset to &lt; 2 minutes.
+          </div>
+          <button class="btn-recover" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;" onclick="resetPreset()">
+            Reset Simulation
+          </button>
+        `;
+      } else {
+        document.getElementById('leakBanner').style.background = 'rgba(244, 63, 94, 0.1)';
+        document.getElementById('leakBanner').style.borderColor = 'rgba(244, 63, 94, 0.3)';
+        document.getElementById('leakBanner').innerHTML = `
+          <div class="leak-text">
+            <strong>⚠️ Critical Friction Detected:</strong> ${data.leaked} prospective buyers were left waiting past the 2-hour SLA. They contacted competitors while your inbox sat unmonitored.
+          </div>
+          <button class="btn-recover" onclick="triggerRescue()">
+            <span>⚡</span> Dispatch Instant Recovery Sequences
+          </button>
+        `;
+      }
+
+      // Leads table
+      const tbody = document.getElementById('leadTableBody');
+      tbody.innerHTML = '';
+
+      let filteredLeads = data.leads;
+      if (currentFilter === 'LEAKED') {
+        filteredLeads = data.leads.filter(l => l.sla === 'BREACHED');
+      } else if (currentFilter === 'WHATSAPP') {
+        filteredLeads = data.leads.filter(l => l.ch === 'whatsapp');
+      } else if (currentFilter === 'FORM') {
+        filteredLeads = data.leads.filter(l => l.ch === 'web');
+      }
+
+      filteredLeads.forEach(lead => {
+        const tr = document.createElement('tr');
+        
+        let chClass = 'ch-web';
+        let chLabel = 'Web Form';
+        if (lead.ch === 'whatsapp') { chClass = 'ch-whatsapp'; chLabel = 'WhatsApp'; }
+        if (lead.ch === 'phone') { chClass = 'ch-phone'; chLabel = 'Phone / Missed'; }
+        if (lead.ch === 'email') { chClass = 'ch-email'; chLabel = 'Inbound Email'; }
+
+        let slaPill = '<span class="sla-pill sla-healthy">🟢 &lt; 5m ELITE</span>';
+        if (lead.sla === 'WARNING') slaPill = '<span class="sla-pill sla-warning">🟡 12m SLOW</span>';
+        if (lead.sla === 'BREACHED') {
+          slaPill = isRecovered 
+            ? '<span class="sla-pill sla-recovered">⚡ RECOVERED</span>' 
+            : '<span class="sla-pill sla-breached">🔴 LEAKED (&gt;2h)</span>';
+        }
+
+        const repDisplay = isRecovered && lead.sla === 'BREACHED' ? 'Assigned: Sarah M. (Instant Hook Sent)' : lead.rep;
+
+        tr.innerHTML = `
+          <td><span class="channel-badge ${chClass}">${chLabel}</span></td>
+          <td><strong>${lead.name}</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">${lead.hook}</span></td>
+          <td style="font-family: var(--font-mono); font-weight: 700;">$${lead.deal.toLocaleString()}</td>
+          <td>${lead.rec}</td>
+          <td>${lead.touch}</td>
+          <td>${slaPill}</td>
+          <td>${repDisplay}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function loadPreset(val) {
+      currentPreset = val;
+      isRecovered = false;
+      render();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      render();
+    }
+
+    function triggerRescue() {
+      isRecovered = true;
+      render();
+      showToast(`⚡ Dispatched automated multi-channel rescue sequence to ${PRESETS[currentPreset].leaked} prospects! Pipeline secured.`);
+    }
+
+    function resetPreset() {
+      isRecovered = false;
+      render();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>

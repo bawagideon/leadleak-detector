@@ -1,0 +1,12 @@
+{
+  "name": "@gideon/leadleak-detector",
+  "version": "1.0.0",
+  "description": "LeadLeak Detector: Commercial revenue recovery engine that intercepts uncontacted leads, enforces response SLAs, and recovers lost pipeline.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "start": "node src/index.js"
+  },
+  "author": "Gideon Autonomous Workforce",
+  "license": "MIT"
+}
