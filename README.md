@@ -9,6 +9,17 @@
 
 ---
 
+## 🚀 Live Interactive Simulator & Proof
+
+[![LeadLeak Detector & Pipeline Recovery Live Interactive Simulator](assets/screenshot.png)](https://gideonbawa-website.netlify.app/simulators/leadleak-detector/)
+
+* 🌐 **Live In-Browser Simulator:** [https://gideonbawa-website.netlify.app/simulators/leadleak-detector/](https://gideonbawa-website.netlify.app/simulators/leadleak-detector/)
+* 💼 **Portfolio Showcase:** [https://gideonbawa-website.netlify.app/#work](https://gideonbawa-website.netlify.app/#work)
+* 🛡️ **Verified QA Evidence:** HMAC-SHA256 Signed Contract (`ev-qa-contract-1791285928367-leadleak-detector`)
+
+---
+
+
 ## 💸 The 5-Gate Commercial Scorecard
 
 | Gate | Criterion | Status | Proof |
